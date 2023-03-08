@@ -1,17 +1,17 @@
-let users = {
-  admin: {
-    regUsernameValue: "admin",
-    regPasswordValue: "admin1234",
-  },
-  user0: {
-    regUsernameValue: "user",
-    regPasswordValue: "user1234",
-  },
-  user1: {
-    regUsernameValue: "user111",
-    regPasswordValue: "user12345",
-  },
-};
+// let users = {
+//   admin: {
+//     regUsernameValue: "admin",
+//     regPasswordValue: "admin1234",
+//   },
+//   user0: {
+//     regUsernameValue: "user",
+//     regPasswordValue: "user1234",
+//   },
+//   user1: {
+//     regUsernameValue: "user111",
+//     regPasswordValue: "user12345",
+//   },
+// };
 
 let formClose = document.querySelectorAll(".form__close");
 let authSpan = document.querySelectorAll(".auth__span");
@@ -90,7 +90,7 @@ regLink.onclick = () => {
   input.forEach((e) => (e.value = ""));
 };
 
-authBtn.addEventListener("click", () => {
+authBtn.addEventListener("", () => {
   let authUsernameValue = document.querySelector(".auth__username").value;
   let authPasswordValue = document.querySelector(".auth__password").value;
   let authSpan = document.querySelectorAll(".auth__span");
@@ -138,7 +138,7 @@ authBtn.addEventListener("click", () => {
   }
 });
 
-regBtn.addEventListener("click", () => {
+regBtn.addEventListener("", () => {
   let regUsernameValue = document.querySelector(".reg__username").value;
   let regPasswordValue = document.querySelector(".reg__password").value.trim();
   let regRePasswordValue = document
@@ -196,3 +196,70 @@ regBtn.addEventListener("click", () => {
     );
   }
 });
+
+function auth() {
+  let authUsernameValue = document.querySelector(".auth__username").value;
+  let authPasswordValue = document.querySelector(".auth__password").value;
+
+  fetch("https://dummyjson.com/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: authUsernameValue,
+      password: authPasswordValue,
+    }),
+  })
+    .then((res) => res.json())
+    .then((json) => innerAuth(json));
+
+  function innerAuth(json) {
+    if (json.message != "Invalid credentials") {
+      console.log(json);
+      localStorage.setItem(
+        json.username,
+        JSON.stringify({ id: json.id, token: json.token })
+      );
+    } else {
+      authError();
+      AuthErrorMessage.innerText = "Неверный логин или пароль";
+    }
+  }
+}
+
+authBtn.addEventListener("click", auth);
+
+function reg() {
+  let regUsernameValue = document.querySelector(".reg__username").value;
+  let regPasswordValue = document.querySelector(".reg__password").value.trim();
+  let regRePasswordValue = document
+    .querySelector(".reg__repassword")
+    .value.trim();
+
+  fetch("https://dummyjson.com/users/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: regUsernameValue,
+      password: regPasswordValue,
+    }),
+  })
+    .then((res) => res.json())
+    .then((json) => innerReg(json));
+
+  function innerReg() {
+    function regError() {
+      regErrorMessage.style.display = "block";
+      regErrorMessage.style.color = "#d42d2d";
+      authSpan.forEach((e) => (e.style.color = "#d42d2d"));
+    }
+    let regErrorMessage = document.querySelector(".reg__error-message");
+    if (regPasswordValue !== regRePasswordValue) {
+      regError();
+      regErrorMessage.innerHTML = "Пароли не совпадают";
+    } else {
+      regScreen.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
+  }
+}
+regBtn.addEventListener("click", reg);
